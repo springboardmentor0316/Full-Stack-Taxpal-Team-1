@@ -1,0 +1,146 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', sans-serif;
+}
+
+
+.auth-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0b2c5f, #0a3a7a);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+.auth-container {
+  width: 1000px;
+  height: 540px;
+  display: flex;
+  padding: 40px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(22px);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
+}
+
+.auth-left {
+  flex: 1;
+  color: #ffffff;
+  padding-right: 50px;
+}
+
+.logo {
+  font-size: 36px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.tagline {
+  font-size: 14px;
+  opacity: 0.85;
+  margin-bottom: 50px;
+}
+
+.illustration {
+  max-width: 500px;
+  width: 100%;
+}
+
+
+.auth-right {
+  width: 340px;
+  padding: 32px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(26px);
+}
+
+.auth-right h2 {
+  font-size: 18px;
+  color: #ffffff;
+  margin-bottom: 22px;
+}
+
+
+.auth-right form {
+  display: flex;
+  flex-direction: column;
+}
+
+.auth-right label {
+  font-size: 12px;
+  color: #e6ecf3;
+  margin-bottom: 6px;
+}
+
+.auth-right input {
+  height: 38px;
+  border-radius: 8px;
+  border: none;
+  padding: 0 12px;
+  margin-bottom: 16px;
+  outline: none;
+}
+
+.password-box {
+  position: relative;
+}
+
+.password-box input {
+  width: 100%;
+  padding-right: 42px;
+}
+
+.eye-icon {
+  position: absolute;
+  right: 12px;
+  top: 40%;
+  transform: translateY(-50%);
+  color: rgba(0, 0, 0, 0.45);
+  font-size: 17px;
+  cursor: pointer;
+}
+
+
+.forgot-wrapper {
+  text-align: right;
+  margin-bottom: 16px;
+}
+
+
+.primary-btn {
+  height: 42px;
+  border-radius: 10px;
+  border: none;
+  background: #002384;
+  color: #ffffff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+
+.link-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 12px;
+  color: #001c68;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.link-btn.inline {
+  margin-left: 4px;
+}
+
+.switch-text {
+  margin-top: 18px;
+  font-size: 12px;
+  color: #ffffff;
+  text-align: center;
+}

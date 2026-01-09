@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import '../index.css';
 
-function LoginForm() {
+function LoginForm({ onSwitch }) {
     const [showPassword, setShowPassword] = useState(false);
 
     const toggleShow = () => setShowPassword((s) => !s);
@@ -45,14 +45,14 @@ function LoginForm() {
                     </button>
                 </div>
 
-                <a href="#" className="forgot">
+                <a href="#" className="forgot" onClick={(e) => { e.preventDefault(); onSwitch('forgot'); }}>
                     Forgot Password?
                 </a>
 
                 <button className="signin">Sign in</button>
 
                 <p className="register">
-                    Don’t have an account yet? <span>Register for free</span>
+                    Don’t have an account yet? <span onClick={() => onSwitch('signup')}>Register for free</span>
                 </p>
             </form>
         </div>

@@ -11,18 +11,46 @@ function LoginForm({ onSwitch }) {
         <div className="right">
             <h2>Login</h2>
 
-            <form onSubmit={(e) => e.preventDefault()}>
+            <form onSubmit={async (e) => {
+                e.preventDefault();
+                const email = e.target.email.value;
+                const password = e.target.password.value;
+
+                try {
+                    const response = await fetch('/api/auth/login', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email, password }),
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        alert("Login Successful!");
+                        localStorage.setItem('token', data.token);
+                        // Redirect or update app state here
+                        console.log("Token:", data.token);
+                    } else {
+                        alert(data.message || "Login failed");
+                    }
+                } catch (error) {
+                    console.error("Login Error:", error);
+                    alert("An error occurred. Please try again.");
+                }
+            }}>
                 <label htmlFor="email">Email</label>
                 <div className="input-group">
-                    <input id="email" type="email" placeholder="username@gmail.com" />
+                    <input id="email" name="email" type="email" placeholder="username@gmail.com" required />
                 </div>
 
                 <label htmlFor="password">Password</label>
                 <div className="input-group password-group">
                     <input
                         id="password"
+                        name="password"
                         type={showPassword ? "text" : "password"}
                         placeholder="Password"
+                        required
                     />
 
                     <button

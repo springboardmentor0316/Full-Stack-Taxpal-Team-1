@@ -212,3 +212,31 @@ button {
 button:hover {
   background: #041f38;
 }
+
+/* Container for scrollable form content */
+.container {
+  max-height: 480px;
+  overflow-y: auto;
+  padding-right: 8px;
+  /* avoid scrollbar overlap */
+  margin-top: 10px;
+}
+
+/* Custom scrollbar for webkit */
+.container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.container::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+}
+
+.container::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+}
+
+.container::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}

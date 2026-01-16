@@ -16,7 +16,12 @@ function SignupForm({ onSwitch }) {
   const [error, setError] = useState('');
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+
+    // 👇 ADD / REMOVE .filled class (for eye icon color & border)
+    e.target.classList.toggle('filled', value !== '');
+
+    setFormData({ ...formData, [name]: value });
   };
 
   const handleCreateAccount = () => {
@@ -124,7 +129,11 @@ function SignupForm({ onSwitch }) {
 
           <div>
             <label>Country</label>
-            <select name="country" value={formData.country} onChange={handleChange}>
+            <select
+              name="country"
+              value={formData.country}
+              onChange={handleChange}
+            >
               <option value="" disabled>Select your country</option>
               <option>India</option>
               <option>USA</option>
@@ -134,7 +143,11 @@ function SignupForm({ onSwitch }) {
 
           <div>
             <label>Income Bracket (Optional)</label>
-            <select name="income" value={formData.income} onChange={handleChange}>
+            <select
+              name="income"
+              value={formData.income}
+              onChange={handleChange}
+            >
               <option value="" disabled>Select your income bracket</option>
               <option>Low</option>
               <option>Middle</option>
@@ -145,7 +158,11 @@ function SignupForm({ onSwitch }) {
 
         {error && <p style={{ color: 'red', marginTop: '10px' }}>{error}</p>}
 
-        <button className="signin" onClick={handleCreateAccount} style={{ marginTop: '20px' }}>
+        <button
+          className="signin"
+          onClick={handleCreateAccount}
+          style={{ marginTop: '20px' }}
+        >
           Create Account
         </button>
 

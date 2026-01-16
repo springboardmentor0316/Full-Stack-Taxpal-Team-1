@@ -4,19 +4,28 @@ import '../index.css';
 function LoginForm({ onSwitch }) {
   const [showPassword, setShowPassword] = useState(false);
 
+  const handleFilled = (e) => {
+    e.target.classList.toggle('filled', e.target.value !== '');
+  };
+
   return (
     <div className="right">
       <h2>Login</h2>
 
       <form onSubmit={(e) => e.preventDefault()}>
         <label>Email</label>
-        <input type="email" placeholder="username@gmail.com" />
+        <input
+          type="email"
+          placeholder="username@gmail.com"
+          onChange={handleFilled}
+        />
 
         <label>Password</label>
         <div className="input-group password-group">
           <input
             type={showPassword ? 'text' : 'password'}
             placeholder="Password"
+            onChange={handleFilled}
           />
 
           <button

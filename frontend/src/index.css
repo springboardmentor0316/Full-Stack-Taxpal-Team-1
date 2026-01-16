@@ -331,16 +331,16 @@ select.select-box option {
   width: 36px;
   height: 36px;
   border-radius: 8px;
-  background: rgba(0, 0, 0, 0.35); /* darker */
-  border: 1px solid rgba(255,255,255,0.25);
+  /* background: rgba(0, 0, 0, 0.35); /* darker */
+  border: 1px solid rgba(255,255,255,0.25); */
   color: #fff;
   cursor: pointer;
   font-size: 16px;
 }
 
-.password-group .eye-btn:hover {
-  background: rgba(0, 0, 0, 0.55);
-}
+/* .password-group .eye-btn:hover {
+  /* background: rgba(0, 0, 0, 0.55); */
+} */
 /* default glass look */
 input,
 select {
@@ -418,6 +418,48 @@ select {
   appearance: auto;
   color: rgba(255, 255, 255, 0.6);
 }
+/* === PASSWORD GROUP BASE === */
+.password-group {
+  position: relative;
+}
+
+/* === EYE BUTTON BASE (NO BORDER AT ALL) === */
+.password-group .eye-btn {
+  position: absolute;
+  right: 12px;
+  top: 15%;
+  transform: translateY(-50%);
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: none;               /* ❌ NO BORDER */
+  background: transparent;    /* ❌ NO BG */
+  cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ============================= */
+/* EMPTY INPUT → DARK FIELD */
+/* ============================= */
+.password-group:has(input:not(.filled)) .eye-btn {
+  color: #ffffff;             /* 👁 white */
+}
+
+/* ============================= */
+/* FILLED INPUT → WHITE FIELD */
+/* ============================= */
+.password-group:has(input.filled) .eye-btn {
+  color: #000000;             /* 👁 black */
+}
+
+/* optional hover (no bg, just clarity) */
+.password-group .eye-btn:hover {
+  opacity: 0.8;
+}
+
 
 /* When a real value is selected → TURN WHITE */
 select:not([value=""]),

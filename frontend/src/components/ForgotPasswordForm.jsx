@@ -7,10 +7,13 @@ function ForgotPasswordForm({ onSwitch }) {
   const [captcha, setCaptcha] = useState('');
   const [captchaInput, setCaptchaInput] = useState('');
 
+  const [otp, setOtp] = useState('');
+  const [otpInput, setOtpInput] = useState('');
+
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // generate 4-digit captcha
+  /* ---------- CAPTCHA ---------- */
   const generateCaptcha = () => {
     const value = Math.floor(1000 + Math.random() * 9000).toString();
     setCaptcha(value);
@@ -23,9 +26,20 @@ function ForgotPasswordForm({ onSwitch }) {
 
   const isCaptchaValid = captchaInput === captcha;
 
-  const handleGoToReset = () => {
-    if (isCaptchaValid) {
-      setStep(2);
+  /* ---------- OTP ---------- */
+  const sendOtp = () => {
+    if (!isCaptchaValid) return;
+    const generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
+    setOtp(generatedOtp);
+    console.log('OTP (mock):', generatedOtp); // mock
+    setStep(2);
+  };
+
+  const verifyOtp = () => {
+    if (otpInput === otp) {
+      setStep(3);
+    } else {
+      alert('Invalid OTP');
     }
   };
 
@@ -34,19 +48,22 @@ function ForgotPasswordForm({ onSwitch }) {
     onSwitch('login');
   };
 
-  // 👇 COMMON HANDLER JUST FOR FILLED CLASS
   const handleFilled = (e) => {
     e.target.classList.toggle('filled', e.target.value !== '');
   };
 
   return (
     <div className="right">
-      <h2>Forgot Password</h2>
+      <h2>
+        {step === 1 && 'Forgot Password'}
+        {step === 2 && 'Enter OTP'}
+        {step === 3 && 'Reset Password'}
+      </h2>
 
       <form onSubmit={(e) => e.preventDefault()}>
+        {/* ================= STEP 1 : SEND OTP ================= */}
         {step === 1 && (
           <>
-            {/* Email */}
             <label>Email</label>
             <div className="input-group">
               <input
@@ -56,18 +73,9 @@ function ForgotPasswordForm({ onSwitch }) {
               />
             </div>
 
-            {/* Captcha */}
             <label>Captcha</label>
 
-            {/* CAPTCHA + REFRESH */}
-            <div
-              style={{
-                display: 'flex',
-                gap: '12px',
-                alignItems: 'center',
-                marginTop: '6px',
-              }}
-            >
+            <div style={{ display: 'flex', gap: '12px', marginTop: '6px' }}>
               <input
                 type="text"
                 value={captcha}
@@ -76,7 +84,6 @@ function ForgotPasswordForm({ onSwitch }) {
                 style={{
                   flex: 1,
                   height: '50px',
-                  borderRadius: '10px',
                   textAlign: 'center',
                   fontWeight: '600',
                 }}
@@ -92,14 +99,12 @@ function ForgotPasswordForm({ onSwitch }) {
                   background: 'rgba(0,0,0,0.35)',
                   color: '#fff',
                   border: '1px solid rgba(255,255,255,0.25)',
-                  cursor: 'pointer',
                 }}
               >
                 Refresh
               </button>
             </div>
 
-            {/* ENTER CAPTCHA */}
             <div className="input-group" style={{ marginTop: '16px' }}>
               <input
                 type="text"
@@ -112,24 +117,59 @@ function ForgotPasswordForm({ onSwitch }) {
               />
             </div>
 
-            {/* RESET BUTTON */}
             <button
               className="signin"
-              onClick={handleGoToReset}
+              onClick={sendOtp}
               disabled={!isCaptchaValid}
               style={{
                 opacity: isCaptchaValid ? 1 : 0.5,
                 cursor: isCaptchaValid ? 'pointer' : 'not-allowed',
               }}
             >
-              Reset Password
+              Send OTP
             </button>
           </>
         )}
 
-        {step === 2 && (
+      {/* ================= STEP 2 : VERIFY OTP ================= */}
+{step === 2 && (
+  <>
+    {/* <label>Enter OTP</label> */}
+
+    {/* 🔧 DEV ONLY OTP DISPLAY */}
+    <p
+      style={{
+        fontSize: '12px',
+        color: '#000',
+        marginBottom: '6px',
+      }}
+    >
+      Dev OTP: <strong>{otp}</strong>
+    </p>
+
+    <div className="input-group">
+      <input
+        type="text"
+        placeholder="6-digit OTP"
+        value={otpInput}
+        onChange={(e) => {
+          setOtpInput(e.target.value);
+          handleFilled(e);
+        }}
+      />
+    </div>
+
+    <button className="signin" onClick={verifyOtp}>
+      Verify OTP
+    </button>
+  </>
+)}
+
+    
+
+        {/* ================= STEP 3 : RESET PASSWORD ================= */}
+        {step === 3 && (
           <>
-            {/* New Password */}
             <label>New Password</label>
             <div className="input-group password-group">
               <input
@@ -146,7 +186,6 @@ function ForgotPasswordForm({ onSwitch }) {
               </button>
             </div>
 
-            {/* Confirm Password */}
             <label>Confirm Password</label>
             <div className="input-group password-group">
               <input
@@ -157,7 +196,9 @@ function ForgotPasswordForm({ onSwitch }) {
               <button
                 type="button"
                 className="eye-btn"
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                onClick={() =>
+                  setShowConfirmPassword(!showConfirmPassword)
+                }
               >
                 👁
               </button>

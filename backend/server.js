@@ -1,91 +1,67 @@
 const express = require("express");
-const cors = require("cors");
 require("dotenv").config();
 
 const app = express();
 
-// Middleware
-app.use(cors());
-app.use(express.json());
+/* =======================
+   CORS (Node 25 SAFE)
+======================= */
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "http://localhost:5173");
+  res.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
 
-// Test route
-app.get("/", (req, res) => {
-  res.send("TaxPal Backend Running 🚀");
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(204);
+  }
+
+  next();
 });
 
-// Routes
+/* =======================
+   BODY PARSER
+======================= */
+app.use(express.json());
+
+/* =======================
+   LOGGER
+======================= */
+app.use((req, res, next) => {
+  console.log("➡️", req.method, req.url);
+  next();
+});
+
+/* =======================
+   HEALTH CHECK (IMPORTANT)
+======================= */
+app.get("/", (req, res) => {
+  res.send(`✅ Backend is running on port ${process.env.PORT}`);
+});
+
+/* =======================
+   ROUTES
+======================= */
 const authRoutes = require("./routes/authRoutes");
+console.log("✅ authRoutes loaded");
 app.use("/api/auth", authRoutes);
 
-// Auth middleware
+/* =======================
+   PROTECTED ROUTE (JWT TEST)
+======================= */
 const authMiddleware = require("./middleware/authMiddleware");
 
-// Protected test route
 app.get("/api/protected", authMiddleware, (req, res) => {
   res.json({
     message: "Protected route accessed",
-    user: req.user,
+    user: req.user
   });
 });
 
-// INITIALIZE DATABASE TABLE
-const db = require("./config/db");
-const initDb = () => {
-  const usersTableSql = `
-    CREATE TABLE IF NOT EXISTS users (
-      id INT AUTO_INCREMENT PRIMARY KEY,
-      full_name VARCHAR(255) NOT NULL,
-      email VARCHAR(255) NOT NULL UNIQUE,
-      password_hash VARCHAR(255) NOT NULL,
-      country VARCHAR(100),
-      income_bracket VARCHAR(50),
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )
-  `;
-
-  const resetsTableSql = `
-    CREATE TABLE IF NOT EXISTS password_resets (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        email VARCHAR(255) NOT NULL,
-        token VARCHAR(10) NOT NULL,
-        expires_at TIMESTAMP NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )
-  `;
-
-  db.query(usersTableSql, (err) => {
-    if (err) {
-      console.error("Error checking users table:", err);
-    } else {
-      console.log("✅ Users table checked/created");
-      // Check for missing columns and add them if necessary (Migration logic)
-      const alterSql = `
-            SELECT count(*) as count FROM information_schema.columns 
-            WHERE table_schema = '${process.env.DB_NAME}' 
-            AND table_name = 'users' 
-            AND column_name = 'country';
-        `;
-      db.query(alterSql, (err, result) => {
-        if (!err && result[0].count === 0) {
-          console.log("⚠️ Adding missing columns to users table...");
-          db.query("ALTER TABLE users ADD COLUMN country VARCHAR(100), ADD COLUMN income_bracket VARCHAR(50)", (err) => {
-            if (err) console.error("Error adding columns:", err);
-            else console.log("✅ Columns added successfully");
-          });
-        }
-      });
-    }
-  });
-
-  db.query(resetsTableSql, (err) => {
-    if (err) console.error("Error checking password_resets table:", err);
-    else console.log("✅ Password Resets table checked/created");
-  });
-};
-initDb();
-
-// START SERVER (ALWAYS LAST)
+/* =======================
+   START SERVER
+======================= */
 const PORT = process.env.PORT || 5000;
+
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });

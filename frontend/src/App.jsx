@@ -3,17 +3,22 @@ import LeftSection from './components/LeftSection';
 import LoginForm from './components/LoginForm';
 import SignupForm from './components/SignupForm';
 import ForgotPasswordForm from './components/ForgotPasswordForm';
+import Dashboard from './components/Dashboard';
 import './index.css';
 
 function App() {
-  const [currentView, setCurrentView] = useState('login'); // 'login', 'signup', 'forgot'
+  const [view, setView] = useState('login');
+
+  if (view === 'dashboard') {
+    return <Dashboard onLogout={() => setView('login')} />;
+  }
 
   return (
     <div className="card">
       <LeftSection />
-      {currentView === 'login' && <LoginForm onSwitch={setCurrentView} />}
-      {currentView === 'signup' && <SignupForm onSwitch={setCurrentView} />}
-      {currentView === 'forgot' && <ForgotPasswordForm onSwitch={setCurrentView} />}
+      {view === 'login' && <LoginForm onSwitch={setView} />}
+      {view === 'signup' && <SignupForm onSwitch={setView} />}
+      {view === 'forgot' && <ForgotPasswordForm onSwitch={setView} />}
     </div>
   );
 }

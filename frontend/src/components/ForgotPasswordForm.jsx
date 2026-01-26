@@ -131,41 +131,37 @@ function ForgotPasswordForm({ onSwitch }) {
           </>
         )}
 
-      {/* ================= STEP 2 : VERIFY OTP ================= */}
-{step === 2 && (
-  <>
-    {/* <label>Enter OTP</label> */}
+        {/* ================= STEP 2 : VERIFY OTP ================= */}
+        {step === 2 && (
+          <>
+            {/* 🔧 DEV ONLY OTP DISPLAY */}
+            <p
+              style={{
+                fontSize: '12px',
+                color: '#000',
+                marginBottom: '6px',
+              }}
+            >
+              Dev OTP: <strong>{otp}</strong>
+            </p>
 
-    {/* 🔧 DEV ONLY OTP DISPLAY */}
-    <p
-      style={{
-        fontSize: '12px',
-        color: '#000',
-        marginBottom: '6px',
-      }}
-    >
-      Dev OTP: <strong>{otp}</strong>
-    </p>
+            <div className="input-group">
+              <input
+                type="text"
+                placeholder="6-digit OTP"
+                value={otpInput}
+                onChange={(e) => {
+                  setOtpInput(e.target.value);
+                  handleFilled(e);
+                }}
+              />
+            </div>
 
-    <div className="input-group">
-      <input
-        type="text"
-        placeholder="6-digit OTP"
-        value={otpInput}
-        onChange={(e) => {
-          setOtpInput(e.target.value);
-          handleFilled(e);
-        }}
-      />
-    </div>
-
-    <button className="signin" onClick={verifyOtp}>
-      Verify OTP
-    </button>
-  </>
-)}
-
-    
+            <button className="signin" onClick={verifyOtp}>
+              Verify OTP
+            </button>
+          </>
+        )}
 
         {/* ================= STEP 3 : RESET PASSWORD ================= */}
         {step === 3 && (

@@ -2,47 +2,67 @@ const db = require("../config/db");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
-// REGISTER
+/* ============================
+   REGISTER (SIGN UP)
+============================ */
 exports.register = async (req, res) => {
   try {
-    const { full_name, email, password, country, income_bracket } = req.body;
+    const {
+      username,
+      full_name,
+      email,
+      password,
+      country,
+      income_bracket
+    } = req.body;
 
-    if (!full_name || !email || !password) {
-      return res.status(400).json({ message: "All fields are required" });
+    // Validation
+    if (!username || !full_name || !email || !password || !country) {
+      return res.status(400).json({ message: "All required fields are missing" });
     }
 
     // Check if user already exists
-    const checkSql = "SELECT id FROM users WHERE email = ?";
-    db.query(checkSql, [email], async (err, result) => {
-      if (err) return res.status(500).json(err);
+    const checkSql = "SELECT id FROM users WHERE email = ? OR username = ?";
+    const [existingUsers] = await db.query(checkSql, [email, username]);
 
-      if (result.length > 0) {
-        return res.status(409).json({ message: "Email already registered" });
-      }
+    if (existingUsers.length > 0) {
+      return res.status(409).json({ message: "User already exists" });
+    }
 
-      // Hash password
-      const hashedPassword = await bcrypt.hash(password, 10);
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-      const insertSql =
-        "INSERT INTO users (full_name, email, password_hash, country, income_bracket) VALUES (?, ?, ?, ?, ?)";
+    // Insert user
+    const insertSql = `
+      INSERT INTO users 
+      (username, full_name, email, password_hash, country, income_bracket)
+      VALUES (?, ?, ?, ?, ?, ?)
+    `;
 
-      db.query(
-        insertSql,
-        [full_name, email, hashedPassword, country || null, income_bracket || null],
-        (err) => {
-          if (err) return res.status(500).json(err);
+    await db.query(
+      insertSql,
+      [
+        username,
+        full_name,
+        email,
+        hashedPassword,
+        country,
+        income_bracket || null
+      ]
+    );
 
-          res.status(201).json({ message: "User registered successfully" });
-        }
-      );
-    });
-  } catch (error) {
+    res.status(201).json({ message: "User registered successfully" });
+
+  } catch (err) {
+    console.error("Registration error:", err);
     res.status(500).json({ message: "Server error" });
   }
 };
 
-// LOGIN
-exports.login = (req, res) => {
+/* ============================
+   LOGIN
+============================ */
+exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
@@ -51,116 +71,201 @@ exports.login = (req, res) => {
     }
 
     const sql = "SELECT * FROM users WHERE email = ?";
-    db.query(sql, [email], async (err, result) => {
-      if (err) return res.status(500).json(err);
+    const [users] = await db.query(sql, [email]);
 
-      if (result.length === 0) {
-        return res.status(401).json({ message: "Invalid credentials" });
+    if (users.length === 0) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    const user = users[0];
+
+    const isMatch = await bcrypt.compare(password, user.password_hash);
+    if (!isMatch) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    // Generate JWT
+    const token = jwt.sign(
+      { id: user.id, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
+    );
+
+    res.json({
+      message: "Login successful",
+      token,
+      user: {
+        id: user.id,
+        username: user.username,
+        full_name: user.full_name,
+        email: user.email,
+        country: user.country
       }
-
-      const user = result[0];
-
-      const isMatch = await bcrypt.compare(password, user.password_hash);
-      if (!isMatch) {
-        return res.status(401).json({ message: "Invalid credentials" });
-      }
-
-      // Create JWT
-      const token = jwt.sign(
-        { id: user.id, email: user.email },
-        process.env.JWT_SECRET,
-        { expiresIn: "1d" }
-      );
-
-      res.json({
-        message: "Login successful",
-        token,
-        user: {
-          id: user.id,
-          full_name: user.full_name,
-          email: user.email,
-          country: user.country
-        }
-      });
     });
-  } catch (error) {
+
+  } catch (err) {
+    console.error("Login error:", err);
     res.status(500).json({ message: "Server error" });
   }
 };
 
-// FORGOT PASSWORD - Generate OTP
+/* ============================
+   FORGOT PASSWORD (OTP)
+============================ */
+const transporter = require("../utils/mailer");
+
+
 exports.forgotPassword = async (req, res) => {
-  const { email } = req.body;
-  if (!email) return res.status(400).json({ message: "Email is required" });
+  try {
+    const { email } = req.body;
 
-  // Check if user exists
-  db.query("SELECT id FROM users WHERE email = ?", [email], (err, result) => {
-    if (err) return res.status(500).json(err);
-    if (result.length === 0) return res.status(404).json({ message: "User not found" });
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
 
-    // Generate 6 digit OTP
+    const [users] = await db.query(
+      "SELECT id FROM users WHERE email = ?",
+      [email]
+    );
+
+    if (users.length === 0) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const userId = users[0].id;
+
+    // Generate OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
 
-    // Expires in 10 minutes
-    const expiresAt = new Date(Date.now() + 10 * 60000);
+    await db.query(
+      `INSERT INTO password_resets (user_id, reset_token, expires_at)
+       VALUES (?, ?, ?)`,
+      [userId, otp, expiresAt]
+    );
 
-    // Store in password_resets
-    const sql = "INSERT INTO password_resets (email, token, expires_at) VALUES (?, ?, ?)";
-    db.query(sql, [email, otp, expiresAt], (err) => {
-      if (err) return res.status(500).json(err);
+    // 📧 Send OTP via email
+    await transporter.sendMail({
+  from: `"TaxPal Support" <${process.env.EMAIL_USER}>`,
+  to: email,
+  subject: "Your Password Reset OTP",
+  html: `
+    <h2>Password Reset OTP</h2>
+    <p>Your OTP is:</p>
+    <h1>${otp}</h1>
+    <p>This OTP is valid for 10 minutes.</p>
+  `,
+});
 
-      console.log(`[OTP LOG] OTP for ${email}: ${otp}`); // Log for dev since no email service
-      res.json({ message: "OTP sent to email (Check ID console)" });
-    });
-  });
+
+    res.json({ message: "OTP sent to your email" });
+
+  } catch (err) {
+    console.error("Forgot password error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
 };
 
-// VERIFY OTP
-exports.verifyOtp = (req, res) => {
-  const { email, otp } = req.body;
-  if (!email || !otp) return res.status(400).json({ message: "Email and OTP required" });
 
-  const sql = "SELECT * FROM password_resets WHERE email = ? AND token = ? AND expires_at > NOW() ORDER BY created_at DESC LIMIT 1";
-  db.query(sql, [email, otp], (err, result) => {
-    if (err) return res.status(500).json(err);
+/* ============================
+   VERIFY OTP
+============================ */
+exports.verifyOtp = async (req, res) => {
+  try {
+    const { email, otp } = req.body;
 
-    if (result.length === 0) {
+    if (!email || !otp) {
+      return res.status(400).json({ message: "Email and OTP required" });
+    }
+
+    const sql = `
+      SELECT pr.id
+      FROM password_resets pr
+      JOIN users u ON pr.user_id = u.id
+      WHERE u.email = ?
+        AND pr.reset_token = ?
+        AND pr.expires_at > NOW()
+        AND pr.used = false
+      ORDER BY pr.created_at DESC
+      LIMIT 1
+    `;
+
+    const [rows] = await db.query(sql, [email, otp]);
+
+    if (rows.length === 0) {
       return res.status(400).json({ message: "Invalid or expired OTP" });
     }
 
-    res.json({ message: "OTP Verified" });
-  });
-};
+    // 🔐 Generate one-time reset session token
+    const resetSessionToken = require("crypto")
+      .randomBytes(32)
+      .toString("hex");
 
-// RESET PASSWORD
-exports.resetPassword = async (req, res) => {
-  try {
-    const { email, otp, newPassword } = req.body;
+    await db.query(
+      `UPDATE password_resets
+       SET verified = true,
+           reset_session_token = ?
+       WHERE id = ?`,
+      [resetSessionToken, rows[0].id]
+    );
 
-    if (!email || !otp || !newPassword) {
-      return res.status(400).json({ message: "Email, OTP, and new password required" });
-    }
-
-    // Verify OTP again to be safe
-    const verifySql = "SELECT * FROM password_resets WHERE email = ? AND token = ? AND expires_at > NOW()";
-    db.query(verifySql, [email, otp], async (err, result) => {
-      if (err) return res.status(500).json(err);
-      if (result.length === 0) return res.status(400).json({ message: "Invalid or expired OTP" });
-
-      const hashedPassword = await bcrypt.hash(newPassword, 10);
-
-      const updateSql = "UPDATE users SET password_hash = ? WHERE email = ?";
-      db.query(updateSql, [hashedPassword, email], (err) => {
-        if (err) return res.status(500).json(err);
-
-        // Delete used OTPs
-        db.query("DELETE FROM password_resets WHERE email = ?", [email]);
-
-        res.json({ message: "Password updated successfully" });
-      });
+    res.json({
+      message: "OTP verified",
+      resetSessionToken
     });
 
-  } catch (error) {
+  } catch (err) {
+    console.error("Verify OTP error:", err);
     res.status(500).json({ message: "Server error" });
   }
 };
+
+/* ============================
+   RESET PASSWORD
+============================ */
+exports.resetPassword = async (req, res) => {
+  try {
+    const { email, resetSessionToken, newPassword } = req.body;
+
+    if (!email || !resetSessionToken || !newPassword) {
+      return res.status(400).json({ message: "All fields required" });
+    }
+
+    const sql = `
+      SELECT pr.id
+      FROM password_resets pr
+      JOIN users u ON pr.user_id = u.id
+      WHERE u.email = ?
+        AND pr.reset_session_token = ?
+        AND pr.verified = true
+        AND pr.used = false
+        AND pr.expires_at > NOW()
+      LIMIT 1
+    `;
+
+    const [rows] = await db.query(sql, [email, resetSessionToken]);
+
+    if (rows.length === 0) {
+      return res.status(400).json({ message: "Invalid or expired reset session" });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    await db.query(
+      "UPDATE users SET password_hash = ? WHERE email = ?",
+      [hashedPassword, email]
+    );
+
+    await db.query(
+      "UPDATE password_resets SET used = true WHERE id = ?",
+      [rows[0].id]
+    );
+
+    res.json({ message: "Password reset successful" });
+
+  } catch (err) {
+    console.error("Reset password error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+

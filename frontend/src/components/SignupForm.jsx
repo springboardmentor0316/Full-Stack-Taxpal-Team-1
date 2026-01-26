@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import '../index.css';
+import api from '../api/axios'; // ✅ backend connector
 
 function SignupForm({ onSwitch }) {
   const [showPassword, setShowPassword] = useState(false);
@@ -18,13 +19,16 @@ function SignupForm({ onSwitch }) {
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    // 👇 ADD / REMOVE .filled class (for eye icon color & border)
+    // keep UI behavior
     e.target.classList.toggle('filled', value !== '');
 
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleCreateAccount = () => {
+  // 🔑 BACKEND CONNECTED HERE
+  const handleCreateAccount = async (e) => {
+    e.preventDefault(); // 🚨 REQUIRED
+
     if (formData.password !== formData.confirmPassword) {
       setError("Passwords don't match");
       return;
@@ -41,8 +45,25 @@ function SignupForm({ onSwitch }) {
       return;
     }
 
-    setError('');
-    onSwitch('dashboard'); // ✅ DIRECT DASHBOARD
+    try {
+      setError('');
+
+      await api.post('/auth/register', {
+        username: formData.username,
+        full_name: formData.fullName,        // mapped
+        email: formData.email,
+        password: formData.password,
+        country: formData.country,
+        income_bracket: formData.income      // mapped
+      });
+
+      // ✅ switch only AFTER DB insert
+      onSwitch('login');
+
+    } catch (err) {
+      console.error(err);
+      setError(err.response?.data?.message || 'Signup failed');
+    }
   };
 
   return (
@@ -52,7 +73,8 @@ function SignupForm({ onSwitch }) {
         Enter your information to create your TaxPal account
       </p>
 
-      <form onSubmit={(e) => e.preventDefault()}>
+      {/* 🔥 FORM SUBMITS TO BACKEND */}
+      <form onSubmit={handleCreateAccount}>
         <div
           className="signup-grid"
           style={{ display: 'grid', gap: '15px', gridTemplateColumns: '1fr 1fr' }}
@@ -158,9 +180,10 @@ function SignupForm({ onSwitch }) {
 
         {error && <p style={{ color: 'red', marginTop: '10px' }}>{error}</p>}
 
+        {/* ✅ SUBMIT BUTTON */}
         <button
+          type="submit"
           className="signin"
-          onClick={handleCreateAccount}
           style={{ marginTop: '20px' }}
         >
           Create Account

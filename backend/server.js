@@ -15,7 +15,11 @@ app.get("/", (req, res) => {
 
 // Routes
 const authRoutes = require("./routes/authRoutes");
+const transactionRoutes = require("./routes/transactionRoutes");
+console.log("🔥 Transaction routes loaded successfully");
 app.use("/api/auth", authRoutes);
+app.use("/api/transactions", transactionRoutes);
+
 
 // Auth middleware
 const authMiddleware = require("./middleware/authMiddleware");

@@ -19,7 +19,7 @@ function SignupForm({ onSwitch }) {
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    // keep UI behavior
+    // 👇 ADD / REMOVE .filled class (for eye icon color & border)
     e.target.classList.toggle('filled', value !== '');
 
     setFormData({ ...formData, [name]: value });

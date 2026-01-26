@@ -91,7 +91,7 @@ function LoginForm({ onSwitch }) {
         </button>
 
         <p className="register">
-          Don’t have an account?{' '}
+          Don't have an account?{' '}
           <span onClick={() => onSwitch('signup')}>Register</span>
         </p>
       </form>

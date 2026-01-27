@@ -1,10 +1,53 @@
 import '../index.css';
+import { useState } from "react";
+import { addTransaction } from "../api/transactions";
 
-function RecordExpenseModal({ onClose }) {
+function RecordExpenseModal({ onClose, onSuccess }) {
+  const [description, setDescription] = useState("");
+  const [amount, setAmount] = useState("");
+  const [category, setCategory] = useState("");
+  const [date, setDate] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleSave = async () => {
+    if (!description || !amount || !category || !date) {
+      alert("Please fill all required fields");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const userId = localStorage.getItem("userId");
+
+      await addTransaction({
+  user_id: userId,     // ✅ correct key name
+  type: "expense",    // ✅ backend expects this
+  category,
+  amount,
+  date
+});
+
+      alert("Expense saved successfully ✅");
+
+      onSuccess(); // refresh dashboard
+      onClose();   // close modal
+    } catch (error) {
+  console.error("Expense Error:", error.response?.data || error.message);
+
+  alert(
+    error.response?.data?.message ||
+    "Backend rejected expense request ❌"
+  );
+}
+ finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="modal-backdrop">
       <div className="modal-card glass modal-relative">
-        {/* CLOSE BUTTON – TOP RIGHT */}
         <button className="modal-close-btn" onClick={onClose}>
           ✕
         </button>
@@ -19,6 +62,8 @@ function RecordExpenseModal({ onClose }) {
         <input
           className="modal-input"
           placeholder="e.g. Grocery Shopping"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
         />
 
         <label>Amount</label>
@@ -26,15 +71,19 @@ function RecordExpenseModal({ onClose }) {
           type="number"
           className="modal-input"
           placeholder="₹ 0.00"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
         />
 
         <div className="modal-row">
           <div>
             <label>Category</label>
-            <select className="modal-input" defaultValue="">
-              <option value="" disabled>
-                Select a category
-              </option>
+            <select
+              className="modal-input"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+            >
+              <option value="">Select category</option>
               <option>Food</option>
               <option>Transport</option>
               <option>Utilities</option>
@@ -44,21 +93,27 @@ function RecordExpenseModal({ onClose }) {
 
           <div>
             <label>Date</label>
-            <input type="date" className="modal-input" />
+            <input
+              type="date"
+              className="modal-input"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+            />
           </div>
         </div>
-
-        <label>Notes (Optional)</label>
-        <textarea
-          className="modal-input textarea"
-          placeholder="Add any additional details..."
-        />
 
         <div className="modal-actions">
           <button className="ghost" onClick={onClose}>
             Cancel
           </button>
-          <button className="danger">Save</button>
+
+          <button
+            className="danger"
+            onClick={handleSave}
+            disabled={loading}
+          >
+            {loading ? "Saving..." : "Save"}
+          </button>
         </div>
       </div>
     </div>

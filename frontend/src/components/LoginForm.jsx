@@ -31,7 +31,8 @@ function LoginForm({ onSwitch }) {
 
       // ✅ Save JWT
       localStorage.setItem('token', res.data.token);
-
+      // ✅ Save userId (IMPORTANT)
+      localStorage.setItem('userId', res.data.user.id);
       // ✅ Navigate to dashboard
       onSwitch('dashboard');
 

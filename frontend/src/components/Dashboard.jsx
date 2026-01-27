@@ -1,4 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { getTransactions } from '../api/transactions';
+
 import '../index.css';
 import RecordIncomeModal from './RecordIncomeModal';
 import RecordExpenseModal from './RecordExpenseModal';
@@ -6,6 +8,45 @@ import RecordExpenseModal from './RecordExpenseModal';
 function Dashboard({ onLogout, userName = 'User' }) {
   const [showIncomeModal, setShowIncomeModal] = useState(false);
   const [showExpenseModal, setShowExpenseModal] = useState(false);
+  const [transactions, setTransactions] = useState([]);
+  const [totalIncome, setTotalIncome] = useState(0);
+const [totalExpense, setTotalExpense] = useState(0);
+
+
+  const loadTransactions = async () => {
+  try {
+    const userId = localStorage.getItem("userId");
+    if (!userId) return;
+
+    const data = await getTransactions(userId);
+    setTransactions(data);
+  } catch (error) {
+    console.error("Failed to load transactions:", error);
+  }
+};
+
+useEffect(() => {
+  loadTransactions();
+}, []);
+useEffect(() => {
+  let income = 0;
+  let expense = 0;
+
+  transactions.forEach((txn) => {
+    if (txn.type === "income") {
+      income += Number(txn.amount);
+    }
+
+    if (txn.type === "expense") {
+      expense += Number(txn.amount);
+    }
+  });
+
+  setTotalIncome(income);
+  setTotalExpense(expense);
+}, [transactions]);
+
+
 
   return (
     <div className="dashboard-root">
@@ -86,13 +127,13 @@ function Dashboard({ onLogout, userName = 'User' }) {
         <div className="stats-grid">
           <div className="stat-card">
             <p>Monthly Income</p>
-            <h3>₹0.00</h3>
+            <h3>₹{totalIncome.toLocaleString()}</h3>
             <span>0% from last month</span>
           </div>
 
           <div className="stat-card">
             <p>Monthly Expenses</p>
-            <h3>₹0.00</h3>
+            <h3>₹{totalExpense.toLocaleString()}</h3>
             <span>0% from last month</span>
           </div>
 
@@ -140,23 +181,44 @@ function Dashboard({ onLogout, userName = 'User' }) {
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td colSpan="5" className="muted" style={{ textAlign: 'center' }}>
-                  No transactions yet
-                </td>
-              </tr>
-            </tbody>
+  {transactions.length === 0 ? (
+    <tr>
+      <td colSpan="5" className="muted" style={{ textAlign: 'center' }}>
+        No transactions yet
+      </td>
+    </tr>
+  ) : (
+    transactions.map((txn) => (
+      <tr key={txn.id}>
+        <td>{new Date(txn.date).toLocaleDateString()}</td>
+        <td>{txn.category}</td>
+        <td>{txn.category}</td>
+        <td>₹{Number(txn.amount).toLocaleString()}</td>
+        <td>{txn.type}</td>
+      </tr>
+    ))
+  )}
+</tbody>
+
           </table>
         </div>
       </main>
 
       {/* MODALS */}
       {showIncomeModal && (
-        <RecordIncomeModal onClose={() => setShowIncomeModal(false)} />
-      )}
+  <RecordIncomeModal
+    onClose={() => setShowIncomeModal(false)}
+    onSuccess={loadTransactions}
+  />
+)}
+
       {showExpenseModal && (
-        <RecordExpenseModal onClose={() => setShowExpenseModal(false)} />
-      )}
+  <RecordExpenseModal
+    onClose={() => setShowExpenseModal(false)}
+    onSuccess={loadTransactions}
+  />
+)}
+
     </div>
   );
 }

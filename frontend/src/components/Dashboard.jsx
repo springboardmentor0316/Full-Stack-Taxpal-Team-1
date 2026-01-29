@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { getTransactions } from '../api/transactions';
 
 import '../index.css';
@@ -10,12 +11,14 @@ function Dashboard({
   userName = 'User',
   userEmail = 'user@email.com',
 }) {
+  const navigate = useNavigate();
+
   const [showIncomeModal, setShowIncomeModal] = useState(false);
   const [showExpenseModal, setShowExpenseModal] = useState(false);
   const [transactions, setTransactions] = useState([]);
   const [totalIncome, setTotalIncome] = useState(0);
   const [totalExpense, setTotalExpense] = useState(0);
-  const [activeNav, setActiveNav] = useState('dashboard'); // ✅ default
+  const [activeNav, setActiveNav] = useState('dashboard');
 
   const transactionsRef = useRef(null);
   const dashboardRef = useRef(null);
@@ -49,13 +52,11 @@ function Dashboard({
     setTotalExpense(expense);
   }, [transactions]);
 
-  // ✅ Scroll logic: if user scrolls UP, activate Dashboard
   useEffect(() => {
     const handleScroll = () => {
       if (!transactionsRef.current) return;
 
-      const txnTop =
-        transactionsRef.current.getBoundingClientRect().top;
+      const txnTop = transactionsRef.current.getBoundingClientRect().top;
 
       if (txnTop > 120) {
         setActiveNav('dashboard');
@@ -66,12 +67,10 @@ function Dashboard({
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // ✅ ONLY CHANGE IS HERE
   const handleTransactionClick = () => {
     setActiveNav('transactions');
-    transactionsRef.current?.scrollIntoView({
-      behavior: 'smooth',
-      block: 'start',
-    });
+    navigate('/transactions');
   };
 
   return (
@@ -107,13 +106,10 @@ function Dashboard({
           </ul>
         </div>
 
-        {/* ===== USER PROFILE (BOTTOM) ===== */}
         <div className="sidebar-user">
           <p className="sidebar-username">{userName}</p>
           <p className="sidebar-email">{userEmail}</p>
-
           <p className="sidebar-settings">Settings</p>
-
           <button className="sidebar-logout" onClick={onLogout}>
             Logout
           </button>
@@ -249,13 +245,8 @@ function Dashboard({
           </div>
         </div>
 
-        {/* TRANSACTIONS */}
-        <div
-          ref={transactionsRef}
-          className={`transactions-card ${
-            activeNav === 'transactions' ? 'transactions-focus' : ''
-          }`}
-        >
+        {/* TRANSACTIONS PREVIEW */}
+        <div ref={transactionsRef} className="transactions-card">
           <div className="txn-header">
             <h4>Recent Transactions</h4>
             <span className="muted">View All</span>
@@ -265,7 +256,6 @@ function Dashboard({
             <thead>
               <tr>
                 <th>Date</th>
-                <th>Description</th>
                 <th>Category</th>
                 <th>Amount</th>
                 <th>Type</th>
@@ -274,7 +264,7 @@ function Dashboard({
             <tbody>
               {transactions.length === 0 ? (
                 <tr>
-                  <td colSpan="5" className="muted" style={{ textAlign: 'center' }}>
+                  <td colSpan="4" className="muted" style={{ textAlign: 'center' }}>
                     No transactions yet
                   </td>
                 </tr>
@@ -283,9 +273,16 @@ function Dashboard({
                   <tr key={txn.id}>
                     <td>{new Date(txn.date).toLocaleDateString()}</td>
                     <td>{txn.category}</td>
-                    <td>{txn.category}</td>
                     <td>₹{Number(txn.amount).toLocaleString()}</td>
-                    <td>{txn.type}</td>
+  <td className="txn-type-cell">
+  <span
+    className={`txn-type-badge ${txn.type}`}
+  >
+    {txn.type}
+  </span>
+</td>
+
+
                   </tr>
                 ))
               )}

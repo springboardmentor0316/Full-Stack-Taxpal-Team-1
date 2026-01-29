@@ -11,3 +11,9 @@ export const addTransaction = async (data) => {
   const res = await api.post("/transactions", data);
   return res.data;
 };
+
+// ✅ DELETE transaction (NEW – required for TransactionsPage)
+export const deleteTransaction = async (transactionId) => {
+  const res = await api.delete(`/transactions/${transactionId}`);
+  return res.data;
+};

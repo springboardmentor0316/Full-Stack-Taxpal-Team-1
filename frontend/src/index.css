@@ -1453,7 +1453,7 @@ thead {
   padding-bottom: 20px;/* space for close button */
 }
 
-Close button
+/* Close button
 .modal-close-btn {
   position: absolute;
  margin-bottom: 20px;
@@ -1461,7 +1461,7 @@ Close button
   font-weight: 600;
   color: #000;
   cursor: pointer;
-}
+} */
 
 /* Inputs & selects */
 .modal-input {
@@ -1491,9 +1491,6 @@ Close button
   margin-top: 10px;
   width: 100%;
   padding: 12px;
-  background: #062a4d;
-  border: none;
-  border-radius: 8px;
   color: #fff;
   margin-bottom: 20px;
   font-size: 15px;
@@ -1544,4 +1541,306 @@ Close button
   transform: translateY(-6px);
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
   transition: all 0.35s ease;
+}
+/* Action buttons container safety */
+td button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* FORCE BUTTONS TO STAY IN SAME ROW */
+.transactions-card table td:last-child {
+  text-align: right;
+}
+
+
+/* EDIT BUTTON */
+.txn-edit-btn {
+  min-width: 52px;
+  height: 26px;
+
+  font-size: 11px;
+  padding: 0 8px;
+
+  background: rgba(255, 255, 255, 0.6);
+  color: #0369a1;
+
+  border: 1px solid rgba(3, 105, 161, 0.2);
+  border-radius: 6px;
+
+  cursor: pointer;
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.txn-edit-btn:hover {
+  background: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+/* DELETE BUTTON */
+.txn-delete-btn {
+  min-width: 52px;
+  height: 26px;
+
+  font-size: 11px;
+  padding: 0 8px;
+
+  background: rgba(255, 255, 255, 0.6);
+  color: #b91c1c;
+
+  border: 1px solid rgba(185, 28, 28, 0.2);
+  border-radius: 6px;
+
+  cursor: pointer;
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.txn-delete-btn:hover {
+  background: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+/* ============================= */
+/* TABLE CELL ALIGNMENT FIX */
+/* ============================= */
+
+.transactions-card table td {
+  vertical-align: middle;
+}
+
+/* Actions column layout */
+.transactions-card table td:last-child {
+  display: flex;
+  align-items: center;      /* ✅ vertical alignment fix */
+  justify-content: flex-end;
+  gap: 6px;
+  height: 100%;
+}
+
+/* ============================= */
+/* ACTION BUTTONS (EDIT / DELETE) */
+/* ============================= */
+
+.txn-edit-btn,
+.txn-delete-btn {
+  height: 26px;
+  min-width: 50px;
+
+  font-size: 11px;
+  padding: 0 8px;
+
+  border-radius: 6px;
+  cursor: pointer;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(6px);
+
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Edit */
+.txn-edit-btn {
+  color: #0369a1;
+  border: 1px solid rgba(3, 105, 161, 0.25);
+}
+
+.txn-edit-btn:hover {
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+/* Delete */
+.txn-delete-btn {
+  color: #b91c1c;
+  border: 1px solid rgba(185, 28, 28, 0.25);
+}
+
+.txn-delete-btn:hover {
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+/* ============================= */
+/* TRANSACTION TYPE BADGES */
+/* (USED IN DASHBOARD + TRANSACTIONS PAGE) */
+/* ============================= */
+
+.txn-type {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 5px 14px;
+  min-width: 78px;
+
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+/* Income badge */
+.txn-type.income {
+  background-color: #dcfce7;
+  color: #15803d;
+}
+
+/* Expense badge */
+.txn-type.expense {
+  background-color: #fee2e2;
+  color: #b91c1c;
+}
+
+/* ============================= */
+/* TABLE HEADER + CELL CONSISTENCY */
+/* ============================= */
+
+.transactions-card table th,
+.transactions-card table td {
+  padding: 14px 12px;
+  text-align: left;
+  white-space: nowrap; /* ✅ fixes heading/value misalignment */
+}
+.transactions-card table td {
+  vertical-align: middle;
+}
+.transactions-card table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed; /* 🔥 THIS IS IMPORTANT */
+}
+.txn-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+
+.txn-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* small, aligned buttons */
+.txn-edit-btn,
+.txn-delete-btn {
+  height: 28px;
+  line-height: 28px;
+  margin-right:20px;
+  padding: 0 10px;
+  font-size: 13px;
+  border-radius: 6px;
+}
+.transactions-card table th:last-child {
+  text-align: center;
+}
+.transactions-card table td:last-child {
+  text-align: center;
+  vertical-align: middle;
+}
+.txn-type-badge {
+  display: inline-block;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+/* ===== TABLE FIX ===== */
+.transactions-card table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.transactions-card th,
+.transactions-card td {
+  padding: 14px 12px;
+  vertical-align: middle;
+}
+
+/* ===== TYPE COLUMN FIX ===== */
+.transactions-card th:last-child {
+  text-align: center;
+}
+
+.txn-type-cell {
+  text-align: center;
+}
+
+/* ===== BADGE STYLE ===== */
+.txn-type-badge {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 80px;
+  justify-content: center;
+  min-width: 90px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* ===== INCOME ===== */
+.txn-type-badge.income {
+  background-color: #dcfce7;
+  color: #15803d;
+}
+
+/* ===== EXPENSE ===== */
+.txn-type-badge.expense {
+  background-color: #fee2e2;
+  color: #b91c1c;
+}
+/* Make sure modal card is relative to position close button */
+.modal-card {
+  position: relative; /* ✅ already added, good */
+  padding: 20px;
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.9); /* glass effect fallback */
+  width: 400px;
+  max-width: 90%;
+}
+
+/* Close button at top-right corner */
+.modal-close-btn {
+  position: absolute;
+  top: 10px;    /* distance from top */
+  right: 10px;  /* distance from right */
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #333;  /* you can change color */
+  transition: color 0.2s;
+}
+
+.modal-close-btn:hover {
+  color: #ff4d4f; /* hover effect */
+}
+.modal-close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: transparent; /* remove background */
+  border: none;            /* remove border */
+  color: #333;             /* close button color */
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0;              /* remove padding if inherited */
+  line-height: 1;
+  transition: color 0.2s;
+  /* Prevent other button styles from applying */
+  all: unset;              /* resets inherited styles */
+  position: absolute;      /* re-add absolute after unset */
+  top: 10px;
+  right: 10px;
+}
+
+.modal-close-btn:hover {
+  color: #ff4d4f; /* nice red hover */
 }

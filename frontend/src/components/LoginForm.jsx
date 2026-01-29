@@ -1,8 +1,11 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../index.css';
-import api from '../api/axios'; // ✅ backend connector
+import api from '../api/axios';
 
-function LoginForm({ onSwitch }) {
+function LoginForm({ onLoginSuccess, onSwitch }) {
+  const navigate = useNavigate();
+
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -29,12 +32,17 @@ function LoginForm({ onSwitch }) {
         password,
       });
 
-      // ✅ Save JWT
+      // ✅ SAVE AUTH DATA
       localStorage.setItem('token', res.data.token);
-      // ✅ Save userId (IMPORTANT)
       localStorage.setItem('userId', res.data.user.id);
-      // ✅ Navigate to dashboard
-      onSwitch('dashboard');
+      localStorage.setItem('userName', res.data.user.name);
+      localStorage.setItem('userEmail', res.data.user.email);
+
+      // ✅ UPDATE LOGIN STATE
+      onLoginSuccess();
+
+      // ✅ ROUTE TO DASHBOARD
+      navigate('/');
 
     } catch (err) {
       console.error(err);
@@ -46,7 +54,6 @@ function LoginForm({ onSwitch }) {
     <div className="right">
       <h2>Login</h2>
 
-      {/* 🔥 FORM CONNECTED TO BACKEND */}
       <form onSubmit={handleLogin}>
         <label>Email</label>
         <input
@@ -80,9 +87,15 @@ function LoginForm({ onSwitch }) {
           </button>
         </div>
 
-        {error && <p style={{ color: 'red', marginTop: '10px' }}>{error}</p>}
+        {error && (
+          <p style={{ color: 'red', marginTop: '10px' }}>{error}</p>
+        )}
 
-        <a href="#" className="forgot" onClick={() => onSwitch('forgot')}>
+        <a
+          href="#"
+          className="forgot"
+          onClick={() => onSwitch('forgot')}
+        >
           Forgot Password?
         </a>
 

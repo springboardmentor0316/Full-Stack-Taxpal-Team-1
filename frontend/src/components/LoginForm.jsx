@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import '../index.css';
 import api from '../api/axios';
 
-function LoginForm({ onLoginSuccess, onSwitch }) {
+function LoginForm({ onLoginSuccess }) {
   const navigate = useNavigate();
 
   const [showPassword, setShowPassword] = useState(false);
@@ -35,15 +35,20 @@ function LoginForm({ onLoginSuccess, onSwitch }) {
       // ✅ SAVE AUTH DATA
       localStorage.setItem('token', res.data.token);
       localStorage.setItem('userId', res.data.user.id);
-      localStorage.setItem('userName', res.data.user.name);
+      localStorage.setItem(
+        'userName',
+        res.data.user.username || res.data.user.fullName
+      );
       localStorage.setItem('userEmail', res.data.user.email);
 
       // ✅ UPDATE LOGIN STATE
       onLoginSuccess();
 
-      // ✅ ROUTE TO DASHBOARD
-      navigate('/');
+      // ✅ SET FLAG TO SHOW TOAST IN NEXT PAGE
+      localStorage.setItem('loginSuccess', 'true');
 
+      // ✅ NAVIGATE TO DASHBOARD
+      navigate('/');
     } catch (err) {
       console.error(err);
       setError(err.response?.data?.message || 'Invalid credentials');
@@ -94,7 +99,10 @@ function LoginForm({ onLoginSuccess, onSwitch }) {
         <a
           href="#"
           className="forgot"
-          onClick={() => onSwitch('forgot')}
+          onClick={(e) => {
+            e.preventDefault();
+            navigate('/forgot');
+          }}
         >
           Forgot Password?
         </a>
@@ -105,7 +113,12 @@ function LoginForm({ onLoginSuccess, onSwitch }) {
 
         <p className="register">
           Don’t have an account?{' '}
-          <span onClick={() => onSwitch('signup')}>Register</span>
+          <span
+            onClick={() => navigate('/signup')}
+            style={{ cursor: 'pointer' }}
+          >
+            Register
+          </span>
         </p>
       </form>
     </div>

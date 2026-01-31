@@ -1,8 +1,11 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../index.css';
-import api from '../api/axios'; // ✅ backend connector
+import api from '../api/axios';
 
-function SignupForm({ onSwitch }) {
+function SignupForm({ onSignupSuccess }) {
+  const navigate = useNavigate();
+
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -18,16 +21,12 @@ function SignupForm({ onSwitch }) {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-
-    // 👇 ADD / REMOVE .filled class (for eye icon color & border)
     e.target.classList.toggle('filled', value !== '');
-
     setFormData({ ...formData, [name]: value });
   };
 
-  // 🔑 BACKEND CONNECTED HERE
   const handleCreateAccount = async (e) => {
-    e.preventDefault(); // 🚨 REQUIRED
+    e.preventDefault();
 
     if (formData.password !== formData.confirmPassword) {
       setError("Passwords don't match");
@@ -50,16 +49,18 @@ function SignupForm({ onSwitch }) {
 
       await api.post('/auth/register', {
         username: formData.username,
-        full_name: formData.fullName,        // mapped
+        full_name: formData.fullName,
         email: formData.email,
         password: formData.password,
         country: formData.country,
-        income_bracket: formData.income      // mapped
+        income_bracket: formData.income,
       });
 
-      // ✅ switch only AFTER DB insert
-      onSwitch('login');
+      // ✅ Trigger App-level toast
+      if (onSignupSuccess) onSignupSuccess();
 
+      // Navigate to login after 3 sec
+      setTimeout(() => navigate('/'), 3000);
     } catch (err) {
       console.error(err);
       setError(err.response?.data?.message || 'Signup failed');
@@ -73,7 +74,6 @@ function SignupForm({ onSwitch }) {
         Enter your information to create your TaxPal account
       </p>
 
-      {/* 🔥 FORM SUBMITS TO BACKEND */}
       <form onSubmit={handleCreateAccount}>
         <div
           className="signup-grid"
@@ -132,7 +132,9 @@ function SignupForm({ onSwitch }) {
               <button
                 type="button"
                 className="eye-btn"
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                onClick={() =>
+                  setShowConfirmPassword(!showConfirmPassword)
+                }
               >
                 👁
               </button>
@@ -180,18 +182,15 @@ function SignupForm({ onSwitch }) {
 
         {error && <p style={{ color: 'red', marginTop: '10px' }}>{error}</p>}
 
-        {/* ✅ SUBMIT BUTTON */}
-        <button
-          type="submit"
-          className="signin"
-          style={{ marginTop: '20px' }}
-        >
+        <button type="submit" className="signin" style={{ marginTop: '20px' }}>
           Create Account
         </button>
 
         <p className="register">
           Already have an account?{' '}
-          <span onClick={() => onSwitch('login')}>Login</span>
+          <span onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
+            Login
+          </span>
         </p>
       </form>
     </div>

@@ -1,24 +1,21 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+
 import { getTransactions } from '../api/transactions';
 
 import '../index.css';
 import RecordIncomeModal from './RecordIncomeModal';
 import RecordExpenseModal from './RecordExpenseModal';
 
-function Dashboard({
-  onLogout,
-  userName = 'User',
-  userEmail = 'user@email.com',
-}) {
+function Dashboard({ onLogout, userName = 'User', userEmail = 'user@email.com' }) {
   const navigate = useNavigate();
+  const displayUserName = userName || 'User';
 
   const [showIncomeModal, setShowIncomeModal] = useState(false);
   const [showExpenseModal, setShowExpenseModal] = useState(false);
   const [transactions, setTransactions] = useState([]);
   const [totalIncome, setTotalIncome] = useState(0);
   const [totalExpense, setTotalExpense] = useState(0);
-  const [activeNav, setActiveNav] = useState('dashboard');
 
   const transactionsRef = useRef(null);
   const dashboardRef = useRef(null);
@@ -27,7 +24,6 @@ function Dashboard({
     try {
       const userId = localStorage.getItem('userId');
       if (!userId) return;
-
       const data = await getTransactions(userId);
       setTransactions(data);
     } catch (error) {
@@ -52,71 +48,9 @@ function Dashboard({
     setTotalExpense(expense);
   }, [transactions]);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      if (!transactionsRef.current) return;
-
-      const txnTop = transactionsRef.current.getBoundingClientRect().top;
-
-      if (txnTop > 120) {
-        setActiveNav('dashboard');
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  // ✅ ONLY CHANGE IS HERE
-  const handleTransactionClick = () => {
-    setActiveNav('transactions');
-    navigate('/transactions');
-  };
-
   return (
     <div className="dashboard-root">
-      {/* ===== SIDEBAR ===== */}
-      <aside className="dashboard-sidebar">
-        <div>
-          <h2 className="brand">TaxPal</h2>
-
-          <ul className="nav-list">
-            <li
-              className={activeNav === 'dashboard' ? 'active' : ''}
-              onClick={() => {
-                setActiveNav('dashboard');
-                dashboardRef.current?.scrollIntoView({
-                  behavior: 'smooth',
-                });
-              }}
-            >
-              Dashboard
-            </li>
-
-            <li
-              className={activeNav === 'transactions' ? 'active' : ''}
-              onClick={handleTransactionClick}
-            >
-              Transactions
-            </li>
-
-            <li>Budgets</li>
-            <li>Tax Estimator</li>
-            <li>Reports</li>
-          </ul>
-        </div>
-
-        <div className="sidebar-user">
-          <p className="sidebar-username">{userName}</p>
-          <p className="sidebar-email">{userEmail}</p>
-          <p className="sidebar-settings">Settings</p>
-          <button className="sidebar-logout" onClick={onLogout}>
-            Logout
-          </button>
-        </div>
-      </aside>
-
-      {/* ===== MAIN ===== */}
+      {/* ===== MAIN CONTENT ONLY ===== */}
       <main className="dashboard-main" ref={dashboardRef}>
         {/* HEADER */}
         <div
@@ -130,7 +64,7 @@ function Dashboard({
           <div>
             <h2 style={{ marginBottom: '4px' }}>Financial Dashboard</h2>
             <p style={{ opacity: 0.7, fontSize: '14px' }}>
-              Welcome back, {userName}! Here's your financial summary.
+              Welcome back, {displayUserName}! Here's your financial summary.
             </p>
           </div>
 
@@ -245,7 +179,7 @@ function Dashboard({
           </div>
         </div>
 
-        {/* TRANSACTIONS PREVIEW */}
+        {/* TRANSACTIONS */}
         <div ref={transactionsRef} className="transactions-card">
           <div className="txn-header">
             <h4>Recent Transactions</h4>
@@ -261,10 +195,15 @@ function Dashboard({
                 <th>Type</th>
               </tr>
             </thead>
+
             <tbody>
               {transactions.length === 0 ? (
                 <tr>
-                  <td colSpan="4" className="muted" style={{ textAlign: 'center' }}>
+                  <td
+                    colSpan="4"
+                    className="muted"
+                    style={{ textAlign: 'center' }}
+                  >
                     No transactions yet
                   </td>
                 </tr>
@@ -274,15 +213,11 @@ function Dashboard({
                     <td>{new Date(txn.date).toLocaleDateString()}</td>
                     <td>{txn.category}</td>
                     <td>₹{Number(txn.amount).toLocaleString()}</td>
-  <td className="txn-type-cell">
-  <span
-    className={`txn-type-badge ${txn.type}`}
-  >
-    {txn.type}
-  </span>
-</td>
-
-
+                    <td className="txn-type-cell">
+                      <span className={`txn-type-badge ${txn.type}`}>
+                        {txn.type}
+                      </span>
+                    </td>
                   </tr>
                 ))
               )}

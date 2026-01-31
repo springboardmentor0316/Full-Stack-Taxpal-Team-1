@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../index.css';
 
-function ForgotPasswordForm({ onSwitch }) {
+function ForgotPasswordForm() {
+  const navigate = useNavigate();
+
   const [step, setStep] = useState(1);
 
   const [captcha, setCaptcha] = useState('');
@@ -29,9 +32,11 @@ function ForgotPasswordForm({ onSwitch }) {
   /* ---------- OTP ---------- */
   const sendOtp = () => {
     if (!isCaptchaValid) return;
+
     const generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
     setOtp(generatedOtp);
-    console.log('OTP (mock):', generatedOtp); // mock
+
+    console.log('OTP (mock):', generatedOtp); // dev only
     setStep(2);
   };
 
@@ -45,7 +50,7 @@ function ForgotPasswordForm({ onSwitch }) {
 
   const handleFinalReset = () => {
     alert('Password reset successfully (mock)');
-    onSwitch('login');
+    navigate('/'); // ✅ back to login
   };
 
   const handleFilled = (e) => {
@@ -134,7 +139,7 @@ function ForgotPasswordForm({ onSwitch }) {
         {/* ================= STEP 2 : VERIFY OTP ================= */}
         {step === 2 && (
           <>
-            {/* 🔧 DEV ONLY OTP DISPLAY */}
+            {/* DEV ONLY */}
             <p
               style={{
                 fontSize: '12px',
@@ -208,7 +213,12 @@ function ForgotPasswordForm({ onSwitch }) {
 
         <p className="register">
           Remember your password?{' '}
-          <span onClick={() => onSwitch('login')}>Back to Login</span>
+          <span
+            onClick={() => navigate('/')}
+            style={{ cursor: 'pointer' }}
+          >
+            Back to Login
+          </span>
         </p>
       </form>
     </div>

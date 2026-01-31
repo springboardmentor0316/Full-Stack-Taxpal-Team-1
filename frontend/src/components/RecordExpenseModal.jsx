@@ -21,26 +21,25 @@ function RecordExpenseModal({ onClose, onSuccess }) {
       const userId = localStorage.getItem("userId");
 
       await addTransaction({
-  user_id: userId,     // ✅ correct key name
-  type: "expense",    // ✅ backend expects this
-  category,
-  amount,
-  date
-});
+        user_id: userId,     // ✅ correct key name
+        type: "expense",    // ✅ backend expects this
+        category,
+        amount,
+        date
+      });
 
       alert("Expense saved successfully ✅");
 
       onSuccess(); // refresh dashboard
       onClose();   // close modal
     } catch (error) {
-  console.error("Expense Error:", error.response?.data || error.message);
+      console.error("Expense Error:", error.response?.data || error.message);
 
-  alert(
-    error.response?.data?.message ||
-    "Backend rejected expense request ❌"
-  );
-}
- finally {
+      alert(
+        error.response?.data?.message ||
+        "Backend rejected expense request ❌"
+      );
+    } finally {
       setLoading(false);
     }
   };
@@ -82,12 +81,15 @@ function RecordExpenseModal({ onClose, onSuccess }) {
               className="modal-input"
               value={category}
               onChange={(e) => setCategory(e.target.value)}
+              style={{ color: category ? 'black' : 'gray' }} // placeholder gray, selected black
             >
-              <option value="">Select category</option>
-              <option>Food</option>
-              <option>Transport</option>
-              <option>Utilities</option>
-              <option>Other</option>
+              <option value="" disabled hidden>
+                Select category
+              </option>
+              <option value="Food">Food</option>
+              <option value="Transport">Transport</option>
+              <option value="Utilities">Utilities</option>
+              <option value="Other">Other</option>
             </select>
           </div>
 

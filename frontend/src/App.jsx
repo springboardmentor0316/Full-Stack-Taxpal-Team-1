@@ -5,82 +5,119 @@ import LeftSection from './components/LeftSection';
 import LoginForm from './components/LoginForm';
 import SignupForm from './components/SignupForm';
 import ForgotPasswordForm from './components/ForgotPasswordForm';
+
 import Dashboard from './components/Dashboard';
 import TransactionsPage from './components/TransactionsPage';
+import Budgets from './components/Budgets';
+import DashboardLayout from './components/DashboardLayout';
+
+import Toast from './components/Toast.jsx';
 
 import './index.css';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
 
   useEffect(() => {
     const userId = localStorage.getItem('userId');
     setIsLoggedIn(!!userId);
   }, []);
 
+  const rawUserName = localStorage.getItem('userName');
   const user = {
-    name: localStorage.getItem('userName') || '',
+    name: rawUserName && rawUserName !== 'undefined' ? rawUserName : 'User',
     email: localStorage.getItem('userEmail') || '',
+  };
+
+  const handleShowToast = (message) => {
+    setToastMessage(message);
+    setTimeout(() => setToastMessage(''), 3000);
   };
 
   const handleLoginSuccess = () => {
     setIsLoggedIn(true);
+    handleShowToast('Login Successful!');
   };
 
   const handleLogout = () => {
-    localStorage.clear();
-    setIsLoggedIn(false);
+    handleShowToast('Logged out successfully!');
+    setTimeout(() => {
+      localStorage.clear();
+      setIsLoggedIn(false);
+    }, 500);
   };
 
-  // ---------- AUTH PAGES ----------
-  if (!isLoggedIn) {
-    return (
-      <div className="card">
-        <LeftSection />
-        <Routes>
-          <Route
-            path="/"
-            element={<LoginForm onLoginSuccess={handleLoginSuccess} />}
-          />
-          <Route path="/signup" element={<SignupForm />} />
-          <Route path="/forgot" element={<ForgotPasswordForm />} />
-          <Route path="*" element={<Navigate to="/" />} />
-        </Routes>
-      </div>
-    );
-  }
-
-  // ---------- PROTECTED PAGES ----------
   return (
-    <Routes>
-      {/* Redirect root to dashboard */}
-      <Route path="/" element={<Navigate to="/dashboard" />} />
+    <>
+      {/* UNIVERSAL TOAST */}
+      <Toast message={toastMessage} />
 
-      <Route
-        path="/dashboard"
-        element={
-          <Dashboard
-            onLogout={handleLogout}
-            userName={user.name}
-            userEmail={user.email}
-          />
-        }
-      />
+      {/* ---------- AUTH SCREENS ---------- */}
+      {!isLoggedIn ? (
+        <div className="card">
+          <LeftSection />
 
-      <Route
-        path="/transactions"
-        element={
-          <TransactionsPage
-            onLogout={handleLogout}
-            userName={user.name}
-            userEmail={user.email}
-          />
-        }
-      />
+          <Routes>
+            <Route
+              path="/"
+              element={<LoginForm onLoginSuccess={handleLoginSuccess} />}
+            />
 
-      {/* fallback */}
-      <Route path="*" element={<Navigate to="/dashboard" />} />
-    </Routes>
+            <Route
+              path="/signup"
+              element={
+                <SignupForm
+                  onSignupSuccess={() =>
+                    handleShowToast(
+                      'Account created successfully! You can now login.'
+                    )
+                  }
+                />
+              }
+            />
+
+            <Route path="/forgot" element={<ForgotPasswordForm />} />
+
+            <Route path="*" element={<Navigate to="/" />} />
+          </Routes>
+        </div>
+      ) : (
+        /* ---------- PROTECTED APP ---------- */
+        <Routes>
+          {/* Redirect root */}
+          <Route path="/" element={<Navigate to="/dashboard" />} />
+
+          {/* Layout Route (SIDEBAR LIVES HERE) */}
+          <Route
+            element={
+              <DashboardLayout
+                onLogout={handleLogout}
+                userName={user.name}
+                userEmail={user.email}
+              />
+            }
+          >
+            <Route
+              path="/dashboard"
+              element={<Dashboard userName={user.name} />}
+            />
+
+            <Route
+              path="/transactions"
+              element={<TransactionsPage />}
+            />
+
+            <Route
+              path="/budgets"
+              element={<Budgets />}
+            />
+          </Route>
+
+          <Route path="*" element={<Navigate to="/dashboard" />} />
+        </Routes>
+      )}
+    </>
   );
 }
 

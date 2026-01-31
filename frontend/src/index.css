@@ -1844,3 +1844,161 @@ td button {
 .modal-close-btn:hover {
   color: #ff4d4f; /* nice red hover */
 }
+/* Edit Button */
+.txn-edit-btn {
+  background-color: #e0f2fe; /* light blue background */
+  color: #0369a1; /* deep blue text */
+  border: 1px solid #bae6fd; /* subtle border */
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.txn-edit-btn:hover {
+  background-color: #0369a1; /* dark blue hover */
+  color: white;
+  box-shadow: 0 4px 8px rgba(3, 105, 161, 0.2);
+  transform: translateY(-1px);
+}
+
+/* Delete Button */
+.txn-delete-btn {
+  background-color: #fee2e2; /* light red background */
+  color: #b91c1c; /* deep red text */
+  border: 1px solid #fca5a5; /* subtle red border */
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.txn-delete-btn:hover {
+  background-color: #b91c1c; /* deep red hover */
+  color: white;
+  box-shadow: 0 4px 8px rgba(185, 28, 28, 0.2);
+  transform: translateY(-1px);
+}
+
+/* Shared Styles */
+.txn-edit-btn,
+.txn-delete-btn {
+  height: 30px;
+  line-height: 30px;
+  padding: 0 12px;
+  font-size: 13px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* Align buttons properly in table cell */
+.txn-actions {
+  display: flex;
+  justify-content: flex-end; /* right aligned */
+  gap: 8px; /* space between buttons */
+  align-items: center;
+}
+/* ===== Income / Expense Badge Styles ===== */
+.txn-type {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  min-width: 70px;
+  text-align: center;
+  color: #1f2937; /* dark text for better contrast */
+}
+
+.txn-type.income {
+  background-color: #d1fae5; /* soft green pastel */
+  color: #065f46; /* dark green text */
+}
+
+.txn-type.expense {
+  background-color: #fee2e2; /* soft red pastel */
+  color: #991b1b; /* dark red text */
+}
+
+/* ===== Edit/Delete Buttons ===== */
+.txn-actions {
+  display: flex;
+  justify-content: flex-end; /* keep buttons right-aligned */
+  gap: 8px; /* spacing between buttons */
+  align-items: center; /* vertical alignment */
+}
+
+.txn-edit-btn,
+.txn-delete-btn {
+  height: 30px;
+  line-height: 30px;
+  padding: 0 12px;
+  font-size: 13px;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+/* Edit button style - subtle pastel */
+.txn-edit-btn {
+  background-color: #bfdbfe; /* pastel blue */
+  color: #1e40af; /* dark blue text */
+  border: 1px solid #93c5fd;
+}
+.txn-edit-btn:hover {
+  background-color: #1e40af; /* dark blue hover */
+  color: #fff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(30, 64, 175, 0.2);
+}
+
+/* Delete button style - soft red */
+.txn-delete-btn {
+  background-color: #fecaca; /* pastel red */
+  color: #991b1b; /* dark red text */
+  border: 1px solid #fca5a5;
+}
+.txn-delete-btn:hover {
+  background-color: #991b1b; /* dark red hover */
+  color: #fff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(153, 27, 27, 0.2);
+}
+
+/* ===== Fix "Actions" header alignment ===== */
+th:last-child {
+  text-align: right;
+  padding-right: 16px; /* same padding as buttons container */
+}
+
+/* Optional: table cell vertical centering */
+td, th {
+  vertical-align: middle;
+}
+@keyframes fadeInOut {
+  0% { opacity: 0; transform: translateY(20px); }
+  10% { opacity: 1; transform: translateY(0); }
+  90% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-20px); }
+}
+/* ===== Glass badge for Budget Health ===== */
+.budget-health-glass {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  padding: 6px 12px;
+  border-radius: 10px;
+
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.budget-health-glass strong {
+  color: #22c55e; /* green */
+}
